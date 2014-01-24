@@ -78,7 +78,7 @@ fn main() {
                  </style></head>
                  <body>
                  <h1>Greetings, Krusty!</h1>
-                 <h6>Total Server Refreshes: {:d} </h6>
+                 <h6>Total Server Requests: {:d} </h6>
                  </body></html>\r\n", unsafe{visitCount});
                 stream.write(response.as_bytes());
             }
@@ -103,7 +103,7 @@ fn main() {
                     <body> <h1> Forbidden </h1>
                     <p> You don't have permission to access /{:s} </p>
                     <hr>
-                    <h6>Total Server Refreshes: {} </h6>
+                    <h6>Total Server Requests: {} </h6>
                     </body></html>\r\n", tempPath, unsafe{visitCount});
                     stream.write(response.as_bytes());   
                 };
@@ -117,7 +117,7 @@ fn main() {
                  <body> <h1> Forbidden </h1>
                  <p> You don't have permission to access /{:s} </p>
                  <hr>
-                 <h6>Total Server Refreshes: {} </h6>
+                 <h6>Total Server Requests: {} </h6>
                  </body></html>\r\n", path, unsafe{visitCount});
                 stream.write(response.as_bytes());
             };
