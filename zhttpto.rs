@@ -49,12 +49,19 @@ fn main() {
             //Gets the contents of the 2nd /, so as to check if it is an empty path or not.
             let splitArray: ~[&str] = request_str.split(' ').collect();
             let path = splitArray[1].slice_from(1).to_owned();
-            let testVal = ~"/";
-            //println!("{}", path);
+            let testVal = ~"";
+            println!("{}", path);
+
+            //Obtain, potentially, the last four characters in the string to check if they are html
+            let borrowedPath = path.clone();
+            let size = path.len();
+            let HTMLTestVal = ~"html";
+            let mut isHTML = ~"N/A";
+            if(size > 4) {
+               isHTML = borrowedPath.slice_from(size-4).to_owned();
+            };
 
             println(format!("Received request :\n{:s}", request_str));
-
-            //println!("{}", std::str::eq(&path, &testVal));
             
             if (std::str::eq(&path, &testVal)) {
                 let response: ~str = 
@@ -69,11 +76,21 @@ fn main() {
                  </body></html>\r\n";
                 stream.write(response.as_bytes());
             }
-            else {
+            else if(std::str::eq(&isHTML, &HTMLTestVal)) {
                 let filePath = Path::new(path);
                 let mut msg_file = File::open(&filePath);
                 let msg_bytes: ~[u8] = msg_file.read_to_end();
                 stream.write(msg_bytes);               
+            }
+            else {
+                let response: ~str = 
+                format!("HTTP/1.1 403 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n
+                 <doctype !html><html><head><title>403 Forbidden</title>
+                 <body> <h1> Forbidden </h1>
+                 <p> You don't have permission to access /{:s} </p>
+                 <hr>
+                 </body></html>\r\n", path);
+                stream.write(response.as_bytes());
             };
             println!("Connection terminates.");
             unsafe {
