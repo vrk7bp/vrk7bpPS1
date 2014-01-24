@@ -51,7 +51,9 @@ fn main() {
             let splitArray: ~[&str] = request_str.split(' ').collect();
             let path = splitArray[1].slice_from(1).to_owned();
             let testVal = ~"";
-            println!("{}", path);
+            unsafe {
+                visitCount = visitCount + 1;
+            }
 
             //Obtain, potentially, the last four characters in the string to check if they are html
             let borrowedPath = path.clone();
@@ -68,15 +70,16 @@ fn main() {
             //First check if there is no directories being accessed. If so then show the original "home screen".
             if (std::str::eq(&path, &testVal)) {
                 let response: ~str = 
-                ~"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n
+                format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n
                  <doctype !html><html><head><title>Hello, Rust!</title>
-                 <style>body { background-color: #111; color: #FFEEAA }
-                        h1 { font-size:2cm; text-align: center; color: black; text-shadow: 0 0 4mm red}
-                        h2 { font-size:2cm; text-align: center; color: black; text-shadow: 0 0 4mm green}
+                 <style>body \\{ background-color: \\#111; color: \\#FFEEAA \\}
+                        h1 \\{ font-size:2cm; text-align: center; color: black; text-shadow: 0 0 4mm red\\}
+                        h2 \\{ font-size:2cm; text-align: center; color: black; text-shadow: 0 0 4mm green\\}
                  </style></head>
                  <body>
                  <h1>Greetings, Krusty!</h1>
-                 </body></html>\r\n";
+                 <h6>Total Server Refreshes: {:d} </h6>
+                 </body></html>\r\n", unsafe{visitCount});
                 stream.write(response.as_bytes());
             }
 
@@ -100,7 +103,8 @@ fn main() {
                     <body> <h1> Forbidden </h1>
                     <p> You don't have permission to access /{:s} </p>
                     <hr>
-                    </body></html>\r\n", tempPath);
+                    <h6>Total Server Refreshes: {} </h6>
+                    </body></html>\r\n", tempPath, unsafe{visitCount});
                     stream.write(response.as_bytes());   
                 };
             }
@@ -113,14 +117,14 @@ fn main() {
                  <body> <h1> Forbidden </h1>
                  <p> You don't have permission to access /{:s} </p>
                  <hr>
-                 </body></html>\r\n", path);
+                 <h6>Total Server Refreshes: {} </h6>
+                 </body></html>\r\n", path, unsafe{visitCount});
                 stream.write(response.as_bytes());
             };
 
             //In the command prompt, print out "Connection terminates." as well as the new page visited number.
             println!("Connection terminates.");
             unsafe {
-                visitCount = visitCount + 1;
                 println!("This page has been called {} time(s).", visitCount);
             }
         }
