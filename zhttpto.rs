@@ -15,6 +15,7 @@
 #[feature(globs)];
 use std::io::*;
 use std::io::net::ip::{SocketAddr};
+use std::io::buffered::BufferedReader;
 use std::{str};
 
 static IP: &'static str = "127.0.0.1";
@@ -90,9 +91,15 @@ fn main() {
 
                 //The path/document is valid and the particular file will be shown through the browser.
                 if(filePath.exists()) {
-                    let mut msg_file = File::open(&filePath);
-                    let msg_bytes: ~[u8] = msg_file.read_to_end();
-                    stream.write(msg_bytes); 
+                    let msg_file = File::open(&filePath);
+                    let mut fileReader = BufferedReader::new(msg_file);
+                    let mut addedPart: ~str = ~"HTTP/1.1 403 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
+                    
+                    for line in fileReader.lines() {
+                        addedPart.push_str(line);
+                    }
+
+                    stream.write(addedPart.as_bytes()); 
                 } 
 
                 //Otherwise the path/document is not valid and the 403 page will be brought up with the relevant path.
